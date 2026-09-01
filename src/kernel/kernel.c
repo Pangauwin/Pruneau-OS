@@ -31,14 +31,23 @@ void kmain(void)
     idt_install();
     vga_print_line("IDTs loaded!");
 
-    vga_print_line("Testing IDT Vector 3...");
+    // Exception tests
+
+    /*vga_print_line("Testing IDT Vector 3...");
     __asm__ __volatile__("int3");
     vga_print_line("Resume after breakpoint! Success");
 
-    /*int a=10, b=0;
+    __asm__ __volatile__(
+    "xor %%edx, %%edx\n"
+    "mov $10, %%eax\n"
+    "xor %%ecx, %%ecx\n"
+    "div %%ecx\n"
+    :
+    :
+    : "rax", "rcx", "rdx"
+    );*/ 
 
-    int c = a/b;
-    (void)c;*/
+    vga_print_line("End of program");
 
     while (1) {
         __asm__ __volatile__("hlt");

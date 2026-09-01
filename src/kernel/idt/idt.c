@@ -117,7 +117,7 @@ void idt_install()
 
     for(int i = 0; i < 32; ++i)
     {
-        idt_set_gate(i, (uint64_t)isr_tables[i], 0x80, 0b10001110); // Non initialized idts (as if I implemented nothing)
+        idt_set_gate(i, (uint64_t)isr_tables[i], 0x08, 0b10001110); // Non initialized idts (as if I implemented nothing)
     }
 
     _idt_load();
