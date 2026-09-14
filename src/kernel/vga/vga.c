@@ -22,6 +22,7 @@ void vga_clear(void)
 void vga_print_line(const char *str)
 {
     if (cursor_row >= VGA_HEIGHT) {
+        vga_clear(); // TODO: paging instead
         cursor_row = 0; /* wrap back to the top rather than write off-screen */
     }
 

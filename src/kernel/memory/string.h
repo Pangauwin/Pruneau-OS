@@ -6,5 +6,4 @@ void* memcpy(void *b, void *a, unsigned long size);
 void* memmove(void* to, const void* from, unsigned long size);
 int memcmp(void* a, void* b, unsigned long size);
 
-
 #endif

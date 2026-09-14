@@ -10,42 +10,35 @@
  * x86-64 calling convention -- from C's point of view this is just a
  * normal function call.
  */
-
 #include <stdint.h>
 
 #include "vga/vga.h"
 #include "idt/idt.h"
+
+#include "memory/pmm/pmm.h"
 
 
 /* kmain: the C-level entry point of the kernel.
  * Returning from here would fall back into entry.asm's ".hang" loop
  * (cli; hlt; jmp .hang), so in practice this function should never return.
  */
+ 
 void kmain(void)
 {
     vga_clear();
-    vga_print_line("Entering kernel");
-    vga_print_line("PruneauOS - loading...");
-
-    vga_print_line("loading idts...");
+    vga_print_line("Entered kernel");
     idt_install();
     vga_print_line("IDTs loaded!");
 
-    // Exception tests
+    vga_print_kv("Address range descriptors: ", entry_count);
 
-    /*vga_print_line("Testing IDT Vector 3...");
-    __asm__ __volatile__("int3");
-    vga_print_line("Resume after breakpoint! Success");
-
-    __asm__ __volatile__(
-    "xor %%edx, %%edx\n"
-    "mov $10, %%eax\n"
-    "xor %%ecx, %%ecx\n"
-    "div %%ecx\n"
-    :
-    :
-    : "rax", "rcx", "rdx"
-    );*/ 
+    for (int i = 0; i < entry_count; ++i) 
+    {
+        address_range_descriptor* phys_addr = (address_range_descriptor*)(uint64_t)(begin_ard_addr + i * entry_size);
+        vga_print_kv("-- NEW ENTRY -- Entry number ", i);
+        vga_print_kv("length: ", phys_addr->length_lo + ((uint64_t)phys_addr->length_hi << 32));
+        vga_print_kv("type: ", phys_addr->type);
+    }
 
     vga_print_line("End of program");
 

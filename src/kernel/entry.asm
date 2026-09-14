@@ -22,6 +22,8 @@ extern kmain
 BITS 16
 section .entry16
 
+extern get_memory_info
+
 real_mode_entry:
     cli
     xor ax, ax
@@ -29,6 +31,9 @@ real_mode_entry:
     mov es, ax          ; segments were already 0 from Stage 1, but be safe
 
     call enable_a20
+
+    ; Reads memory data:
+    call get_memory_info
 
     lgdt [gdt32.pointer]
 

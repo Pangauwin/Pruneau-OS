@@ -28,6 +28,9 @@ build/boot.bin: src/boot/boot.asm
 build/entry.o: src/kernel/entry.asm
 	$(NASM) -f elf64 $< -o $@
 
+build/memory.o: src/kernel/memory.asm
+	$(NASM) -f elf64 $< -o $@
+
 build/vga.o: src/kernel/vga/vga.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
@@ -46,11 +49,8 @@ build/idt_asm.o: src/kernel/idt/idt.asm
 build/idt.o: src/kernel/idt/idt.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-build/string.o: src/kernel/memory/string.c
-	$(CC) $(CFLAGS) -c $< -o $@
-
-build/kernel.elf: build/entry.o build/vga.o build/kernel.o build/idt.o build/string.o build/isr_asm.o build/isr.o build/idt_asm.o src/kernel/linker.ld
-	$(LD) -n -T src/kernel/linker.ld -o $@ build/entry.o build/kernel.o build/idt.o build/string.o build/vga.o build/isr_asm.o build/isr.o build/idt_asm.o
+build/kernel.elf: build/entry.o build/vga.o build/kernel.o build/idt.o build/string.o build/memory.o build/isr_asm.o build/isr.o build/idt_asm.o  src/kernel/linker.ld
+	$(LD) -n -T src/kernel/linker.ld -o $@ build/entry.o build/kernel.o build/idt.o build/string.o build/memory.o build/vga.o build/isr_asm.o build/isr.o build/idt_asm.o
 
 build/kernel.bin: build/kernel.elf
 	$(OBJCOPY) -O binary $< $@
