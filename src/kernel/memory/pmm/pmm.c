@@ -26,8 +26,12 @@ typedef struct memory_page {
 } memory_page;
 
 static memory_page memory_pages[MAX_TRACKED_PAGES];
+static uint64_t freed_memory_pages_address[MAX_TRACKED_PAGES];
 static uint64_t next_memory_page_address;
 static uint32_t memory_pages_size;
+static uint32_t freed_memory_pages_address_size;
+
+static uint64_t last_address;
 
 bool_t is_memory_page_available(uint64_t address)
 {
@@ -80,8 +84,26 @@ void init_memory(void)
         if(is_memory_page_available(memory_descriptor_base_address))
         {
             next_memory_page_address = memory_descriptor_base_address;
+
+            if(next_memory_page_address == 0) next_memory_page_address = MEMORY_PAGE_SIZE; // Just in case the first address is 0, I would like to make sure that doesn't cause allocate_new_page to break
+        
+            break;
         }
     }
+
+    uint64_t max_address = 0;
+    uint64_t max_length = 0;
+
+    for (int i = 0; i < entry_count; ++i) { // Skipping the first entry as it would be the one referenced just up
+        uint64_t memory_descriptor_addr = memory_descriptors[i].base_addr_lo | ((uint64_t)memory_descriptors[i].base_addr_hi << 32);
+        if(memory_descriptor_addr > max_address)
+        {
+            max_address = memory_descriptor_addr;
+            max_length = memory_descriptors[i].length_lo | ((uint64_t)memory_descriptors[i].length_hi << 32);
+        }
+    }
+
+    last_address = max_address + max_length;
 }
 
 
@@ -97,6 +119,8 @@ uint64_t get_next_available_memory_page_address()
     while(!is_memory_page_available(next_address))
     {
         next_address += MEMORY_PAGE_SIZE;
+
+        if(next_address > last_address) return 0;
     }
 
     return next_address;
@@ -104,7 +128,16 @@ uint64_t get_next_available_memory_page_address()
 
 uint64_t allocate_new_page()
 {
-    if(memory_pages_size >= MAX_TRACKED_PAGES) return 0;
+    if(memory_pages_size >= MAX_TRACKED_PAGES || next_memory_page_address == 0) return 0;
+
+    if(freed_memory_pages_address_size > 0)
+    {
+        memory_pages[memory_pages_size].phys_adress = freed_memory_pages_address[freed_memory_pages_address_size - 1];
+        freed_memory_pages_address_size -= 1;
+
+        memory_pages_size += 1;
+        return memory_pages[memory_pages_size - 1].phys_adress;
+    }
 
     memory_pages[memory_pages_size].phys_adress = next_memory_page_address;
     next_memory_page_address = get_next_available_memory_page_address();
@@ -118,7 +151,12 @@ void free_memory_page(uint64_t address)
     for (int i = 0; i < memory_pages_size; ++i) {
         if(memory_pages[i].phys_adress == address)
         {
-            next_memory_page_address = address;
+            if(freed_memory_pages_address_size < MAX_TRACKED_PAGES)
+            {
+                freed_memory_pages_address[freed_memory_pages_address_size] = address;
+                freed_memory_pages_address_size += 1;
+            }
+
             for(int j = i + 1; j < memory_pages_size; ++j)
             {
                 memory_pages[j-1].phys_adress = memory_pages[j].phys_adress;
