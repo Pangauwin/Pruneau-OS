@@ -17,4 +17,5 @@ typedef struct address_range_descriptor{
     uint32_t extended_attributes;
 } __attribute__((packed)) address_range_descriptor; 
 
+void init_memory(void);
 #endif

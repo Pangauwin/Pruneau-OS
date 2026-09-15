@@ -17,6 +17,8 @@ SECTIONS
 {
     . = 0x8000;
 
+    _kernel_start = .;
+
     /* The three staged entry sections from entry.asm, placed first and in
        order, so the raw binary begins with real_mode_entry exactly at
        physical address 0x8000, matching where Stage 1 jumps to. */
@@ -36,6 +38,8 @@ SECTIONS
        could optimize disk space with NOLOAD -- kept simple here since our
        kernel is tiny. */
     .bss : { *(.bss .bss.*) *(COMMON) }
+
+    _kernel_end = .;
 
     /* Discard metadata sections we don't need in the final flat binary. */
     /DISCARD/ : { *(.comment) *(.eh_frame) *(.note.*) }
