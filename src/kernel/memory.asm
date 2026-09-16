@@ -42,10 +42,8 @@ global entry_count
 global begin_ard_addr
 global entry_size
 
-section .data
+section .realmode_data
 begin_ard_addr dd 0x20000
 current_offset dd 0
 entry_size db BUFFER_SIZE
-
-section .bss
 entry_count resb 1 ;resb stands for reserve byte

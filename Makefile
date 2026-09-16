@@ -31,6 +31,12 @@ build/entry.o: src/kernel/entry.asm
 build/memory.o: src/kernel/memory.asm
 	$(NASM) -f elf64 $< -o $@
 
+build/pmm.o: src/kernel/memory/pmm/pmm.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+build/overlap.o: src/kernel/utils/overlap.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
 build/vga.o: src/kernel/vga/vga.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
@@ -49,8 +55,8 @@ build/idt_asm.o: src/kernel/idt/idt.asm
 build/idt.o: src/kernel/idt/idt.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-build/kernel.elf: build/entry.o build/vga.o build/kernel.o build/idt.o build/string.o build/memory.o build/isr_asm.o build/isr.o build/idt_asm.o  src/kernel/linker.ld
-	$(LD) -n -T src/kernel/linker.ld -o $@ build/entry.o build/kernel.o build/idt.o build/string.o build/memory.o build/vga.o build/isr_asm.o build/isr.o build/idt_asm.o
+build/kernel.elf: build/entry.o build/overlap.o build/vga.o build/pmm.o build/kernel.o build/idt.o build/string.o build/memory.o build/isr_asm.o build/isr.o build/idt_asm.o  src/kernel/linker.ld
+	$(LD) -n -T src/kernel/linker.ld -o $@ build/entry.o build/overlap.o build/kernel.o build/memory.o build/pmm.o build/idt.o build/string.o build/vga.o build/isr_asm.o build/isr.o build/idt_asm.o
 
 build/kernel.bin: build/kernel.elf
 	$(OBJCOPY) -O binary $< $@

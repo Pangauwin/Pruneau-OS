@@ -23,6 +23,9 @@ SECTIONS
        order, so the raw binary begins with real_mode_entry exactly at
        physical address 0x8000, matching where Stage 1 jumps to. */
     .entry16 : { *(.entry16) }
+
+    .realmode_data : { *(.realmode_data) }
+
     .entry32 : { *(.entry32) }
     .entry64 : { *(.entry64) }
 

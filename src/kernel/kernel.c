@@ -22,22 +22,24 @@
  * Returning from here would fall back into entry.asm's ".hang" loop
  * (cli; hlt; jmp .hang), so in practice this function should never return.
  */
+
+uint64_t memory_pages[2];
  
 void kmain(void)
 {
     vga_clear();
     vga_print_line("Entered kernel");
     idt_install();
-    vga_print_line("IDTs loaded!");
+    
+    init_memory();
 
-    vga_print_kv("Address range descriptors: ", entry_count);
+    vga_print_kv("last address: ", last_address);
+    vga_print_kv("next address: ", next_memory_page_address);
 
-    for (int i = 0; i < entry_count; ++i) 
-    {
-        address_range_descriptor* phys_addr = (address_range_descriptor*)(uint64_t)(begin_ard_addr + i * entry_size);
-        vga_print_kv("-- NEW ENTRY -- Entry number ", i);
-        vga_print_kv("length: ", phys_addr->length_lo + ((uint64_t)phys_addr->length_hi << 32));
-        vga_print_kv("type: ", phys_addr->type);
+    for (int i = 0; i < 2; ++i) {
+        memory_pages[i] = allocate_new_memory_page();
+        vga_print_kv("current allocation address: ", memory_pages[i]);
+        vga_print_kv("next address: ", next_memory_page_address);
     }
 
     vga_print_line("End of program");

@@ -27,11 +27,11 @@ typedef struct memory_page {
 
 static memory_page memory_pages[MAX_TRACKED_PAGES];
 static uint64_t freed_memory_pages_address[MAX_TRACKED_PAGES];
-static uint64_t next_memory_page_address;
+uint64_t next_memory_page_address; // TODO : mark this as static
 static uint32_t memory_pages_size;
 static uint32_t freed_memory_pages_address_size;
 
-static uint64_t last_address;
+uint64_t last_address; // TODO : mark this as static
 
 bool_t is_memory_page_available(uint64_t address)
 {
@@ -52,7 +52,7 @@ bool_t is_memory_page_available(uint64_t address)
         {
             if(memory_descriptors[i].type != 1) return FALSE;
 
-            for(int j = 0; j < memory_pages_size; ++j)
+            for(uint32_t j = 0; j < memory_pages_size; ++j)
             {
                 if(overlaps(address, MEMORY_PAGE_SIZE, memory_pages[j].phys_adress, MEMORY_PAGE_SIZE))
                 {
@@ -70,7 +70,7 @@ bool_t is_memory_page_available(uint64_t address)
 
 void init_memory(void)
 {
-    memory_descriptors = (address_range_descriptor*)begin_ard_addr; // Legit warning as we initialize the ard addresses when we are still in 16-bit real mode
+    memory_descriptors = (address_range_descriptor*)(uint64_t)begin_ard_addr;
     
     kernel_start = (uint64_t)_kernel_start;
     kernel_size = (uint64_t)_kernel_end - kernel_start;
@@ -126,7 +126,7 @@ uint64_t get_next_available_memory_page_address()
     return next_address;
 }
 
-uint64_t allocate_new_page()
+uint64_t allocate_new_memory_page()
 {
     if(memory_pages_size >= MAX_TRACKED_PAGES || next_memory_page_address == 0) return 0;
 
@@ -148,7 +148,7 @@ uint64_t allocate_new_page()
 
 void free_memory_page(uint64_t address)
 {
-    for (int i = 0; i < memory_pages_size; ++i) {
+    for (uint32_t i = 0; i < memory_pages_size; ++i) {
         if(memory_pages[i].phys_adress == address)
         {
             if(freed_memory_pages_address_size < MAX_TRACKED_PAGES)
@@ -157,7 +157,7 @@ void free_memory_page(uint64_t address)
                 freed_memory_pages_address_size += 1;
             }
 
-            for(int j = i + 1; j < memory_pages_size; ++j)
+            for(uint32_t j = i + 1; j < memory_pages_size; ++j)
             {
                 memory_pages[j-1].phys_adress = memory_pages[j].phys_adress;
             }
