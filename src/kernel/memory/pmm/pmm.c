@@ -27,11 +27,11 @@ typedef struct memory_page {
 
 static memory_page memory_pages[MAX_TRACKED_PAGES];
 static uint64_t freed_memory_pages_address[MAX_TRACKED_PAGES];
-uint64_t next_memory_page_address; // TODO : mark this as static
+static uint64_t next_memory_page_address;
 static uint32_t memory_pages_size;
 static uint32_t freed_memory_pages_address_size;
 
-uint64_t last_address; // TODO : mark this as static
+static uint64_t last_address;
 
 bool_t is_memory_page_available(uint64_t address)
 {

@@ -23,7 +23,4 @@ uint64_t allocate_new_memory_page();
 
 void free_memory_page(uint64_t address);
 
-extern uint64_t next_memory_page_address;
-extern uint64_t last_address;
-
 #endif

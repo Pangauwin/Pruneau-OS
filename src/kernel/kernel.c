@@ -33,15 +33,6 @@ void kmain(void)
     
     init_memory();
 
-    vga_print_kv("last address: ", last_address);
-    vga_print_kv("next address: ", next_memory_page_address);
-
-    for (int i = 0; i < 2; ++i) {
-        memory_pages[i] = allocate_new_memory_page();
-        vga_print_kv("current allocation address: ", memory_pages[i]);
-        vga_print_kv("next address: ", next_memory_page_address);
-    }
-
     vga_print_line("End of program");
 
     while (1) {
